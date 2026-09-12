@@ -64,8 +64,8 @@ export default function Daypass() {
     // Phone
     if (!form.phone.trim()) {
       errors.phone = "Phone number is required";
-    } else if (!/^\d{9}$/.test(form.phone)) {
-      errors.phone = "Enter a valid 9-digit mobile number";
+    } else if (!/^7\d{8}$/.test(form.phone.trim())) {
+      errors.phone = "Enter a valid Sri Lankan mobile number (e.g. 714512456)";
     }
 
     // Membership Plan
@@ -113,7 +113,7 @@ export default function Daypass() {
 
     const body = {
       name: form.name,
-      mobileNumber: form.phone,
+      mobileNumber: form.phone.trim(),
       membershipPlanId: form.membershipPlan,
       amount:
         membershipPlans.find((p) => p.id === form.membershipPlan)?.price ?? 0,
@@ -488,12 +488,15 @@ export default function Daypass() {
                           <input
                             value={form.phone}
                             onChange={(event) =>
-                              updateField("phone", event.target.value)
+                              updateField(
+                                "phone",
+                                event.target.value.replace(/\D/g, "").slice(0, 9),
+                              )
                             }
                             inputMode="numeric"
                             maxLength={9}
                             className="w-full px-4 py-2.5 text-sm outline-none"
-                            placeholder="712 345 678"
+                            placeholder="714512456"
                           />
                         </div>
                         {fieldErrors.phone && (

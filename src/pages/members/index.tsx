@@ -1626,7 +1626,7 @@ export default function Members() {
                     </div>
                     <div>
                       <h3 className="text-base font-semibold text-gray-900 sm:text-md">Profile Overview</h3>
-                      <p className="text-sm text-gray-500">Information fetched from member profile API.</p>
+                      <p className="text-sm text-gray-500">Overview of the member's profile information.</p>
                     </div>
                   </div>
 
