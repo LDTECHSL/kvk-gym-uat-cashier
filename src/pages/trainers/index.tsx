@@ -479,10 +479,13 @@ export default function Trainers() {
     (plan) => plan.id === membershipPlanId,
   );
 
+  // Keep Delete available until onboarding is FULLY complete — payment done
+  // AND fingerprint enrolled. Previously this required BOTH "still unpaid"
+  // AND "no fingerprint", so Delete vanished the instant payment was taken
+  // even though fingerprint enrollment was still outstanding.
   const canDeleteTrainer = (trainer: TableTrainer) =>
     trainer.status === "pending" &&
-    trainer.paymentStatus === 1 &&
-    !trainer.isSavedFingerprints;
+    !(trainer.paymentStatus === 2 && trainer.isSavedFingerprints);
 
   const tabs = [
     { key: "approved", label: "Approved Trainers" },

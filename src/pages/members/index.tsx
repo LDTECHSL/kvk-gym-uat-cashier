@@ -464,7 +464,13 @@ export default function Members() {
   const pageItems = filteredMembers.slice(start, start + pageSize);
   const selectedMembershipPlan = membershipPlans.find((plan) => plan.id === form.membershipPlan);
   const selectedMembershipChangePlan = membershipPlans.find((plan) => plan.id === membershipPlanId);
-  const canDeleteMember = (member: TableMember) => member.status === 'pending' && member.paymentStatus === 1 && !member.isSavedFingerprints;
+  // Keep Delete available until onboarding is FULLY complete — payment done
+  // AND fingerprint enrolled. Previously this required BOTH "still unpaid"
+  // AND "no fingerprint", so Delete vanished the instant payment was taken
+  // even though fingerprint enrollment was still outstanding.
+  const canDeleteMember = (member: TableMember) =>
+    member.status === 'pending' &&
+    !(member.paymentStatus === 2 && member.isSavedFingerprints);
   const tabs = [
     { key: 'approved', label: 'Approved Members' },
     { key: 'pending', label: 'Pending Members' },
