@@ -468,8 +468,10 @@ export default function Members() {
   // AND fingerprint enrolled. Previously this required BOTH "still unpaid"
   // AND "no fingerprint", so Delete vanished the instant payment was taken
   // even though fingerprint enrollment was still outstanding.
+  // Blocked rows (currently only reachable via automatic membership-expiry) get the same
+  // action set as Pending rows, so Delete uses the same eligibility check for both.
   const canDeleteMember = (member: TableMember) =>
-    member.status === 'pending' &&
+    (member.status === 'pending' || member.status === 'blocked') &&
     !(member.paymentStatus === 2 && member.isSavedFingerprints);
   const tabs = [
     { key: 'approved', label: 'Approved Members' },
@@ -821,8 +823,8 @@ export default function Members() {
       setPageAlert({
         visible: true,
         variant: 'success',
-        title: 'Delete Request Sent',
-        description: 'The deletion request has been submitted for super admin approval.',
+        title: 'Member Blocked',
+        description: 'This member has been moved to Blocked status.',
       });
 
       closeDeleteMemberDialog();
@@ -1206,7 +1208,7 @@ export default function Members() {
                               <button onClick={() => openMembershipModal(p.id)} className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer">
                                 <CreditCard size={14} /> Membership
                               </button>
-                              {p.status !== 'pending' ? (
+                              {p.status !== 'pending' && p.status !== 'blocked' ? (
                                 <button onClick={() => openUpdateFingerprintsModal(p.id)} className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer">
                                   <Fingerprint size={14} /> Fingerprints
                                 </button>
@@ -1243,7 +1245,7 @@ export default function Members() {
               <button onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1} className="px-3 py-1 cursor-pointer rounded-md border bg-white text-sm disabled:opacity-50">Prev</button>
               <div className="flex items-center gap-1">
                 {Array.from({ length: totalPages }).map((_, i) => (
-                  <button key={i} onClick={() => setPage(i + 1)} className={`px-2 py-1 text-sm rounded-md ${page === i + 1 ? 'bg-gray-900 text-white' : 'bg-white border'}`}>
+                  <button key={i} onClick={() => setPage(i + 1)} className={`cursor-pointer px-2 py-1 text-sm rounded-md ${page === i + 1 ? 'bg-gray-900 text-white' : 'bg-white border'}`}>
                     {i + 1}
                   </button>
                 ))}
@@ -1534,7 +1536,7 @@ export default function Members() {
                       <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5">
                         <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Scan Actions</h4>
                         <p className="mt-3 text-sm text-gray-600">Connect the fingerprint reader and capture the biometric data before submission.</p>
-                        <button className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-gray-800">
+                        <button className="mt-5 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-gray-800">
                           <Fingerprint size={16} />
                           Start Fingerprint Scan
                         </button>
@@ -1571,7 +1573,7 @@ export default function Members() {
             <div className="flex items-start justify-between border-b border-gray-200 px-5 py-4">
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">Confirm Delete</h2>
-                <p className="mt-1 text-sm text-gray-500">This is a dual authorization process. Super admin can approve or reject the deletion.</p>
+                <p className="mt-1 text-sm text-gray-500">This member will be moved to Blocked status. An admin can reactivate them back to their previous status, or permanently delete them.</p>
               </div>
               <button onClick={closeDeleteMemberDialog} className="rounded-full cursor-pointer p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-900">
                 <X size={18} />

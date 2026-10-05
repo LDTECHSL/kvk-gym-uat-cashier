@@ -25,9 +25,9 @@ export const registerMember = async (memberData: any) => {
   }
 };
 
-export const getMembers = async () => {
+export const getMembers = async (includeDeleted = false) => {
   try {
-    const response = await axios.get(`${MEMBERS_API_URL}`, {
+    const response = await axios.get(`${MEMBERS_API_URL}?includeDeleted=${includeDeleted}`, {
       headers: {
         Authorization: `Bearer ${getToken()}`,
       },

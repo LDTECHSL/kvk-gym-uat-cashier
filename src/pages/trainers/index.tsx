@@ -483,8 +483,10 @@ export default function Trainers() {
   // AND fingerprint enrolled. Previously this required BOTH "still unpaid"
   // AND "no fingerprint", so Delete vanished the instant payment was taken
   // even though fingerprint enrollment was still outstanding.
+  // Blocked rows (currently only reachable via automatic membership-expiry) get the same
+  // action set as Pending rows, so Delete uses the same eligibility check for both.
   const canDeleteTrainer = (trainer: TableTrainer) =>
-    trainer.status === "pending" &&
+    (trainer.status === "pending" || trainer.status === "blocked") &&
     !(trainer.paymentStatus === 2 && trainer.isSavedFingerprints);
 
   const tabs = [
@@ -1060,8 +1062,9 @@ export default function Trainers() {
                         Confirm Delete
                       </h2>
                       <p className="mt-1 text-sm text-gray-500">
-                        This is a dual authorization process. Super admin can
-                        approve or reject the deletion.
+                        This trainer will be moved to Blocked status. An admin
+                        can reactivate them back to their previous status, or
+                        permanently delete them.
                       </p>
                     </div>
                     <button
@@ -1069,7 +1072,7 @@ export default function Trainers() {
                         setDeleteTrainerTarget(null);
                         setDeleteTrainerError("");
                       }}
-                      className="rounded-full p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-900"
+                      className="cursor-pointer rounded-full p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-900"
                     >
                       <X size={18} />
                     </button>
@@ -1100,7 +1103,7 @@ export default function Trainers() {
                         setDeleteTrainerTarget(null);
                         setDeleteTrainerError("");
                       }}
-                      className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm text-gray-700 transition hover:bg-gray-50"
+                      className="cursor-pointer rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm text-gray-700 transition hover:bg-gray-50"
                     >
                       Cancel
                     </button>
@@ -1114,9 +1117,9 @@ export default function Trainers() {
                           setPageAlert({
                             visible: true,
                             variant: "success",
-                            title: "Delete Request Sent",
+                            title: "Trainer Blocked",
                             description:
-                              "The deletion request has been submitted for super admin approval.",
+                              "This trainer has been moved to Blocked status.",
                           });
                           setDeleteTrainerTarget(null);
                           await fetchTrainers();
@@ -1137,7 +1140,7 @@ export default function Trainers() {
                         }
                       }}
                       disabled={isDeletingTrainer}
-                      className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-70"
+                      className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-70"
                     >
                       {isDeletingTrainer ? (
                         <Loader2 size={14} className="animate-spin" />
@@ -1370,15 +1373,13 @@ export default function Trainers() {
                                 >
                                   <Edit size={14} /> Edit
                                 </button>
-                                {trainer.status === "approved" ? (
-                                  <button
-                                    onClick={() => openMembershipModal(trainer.id)}
-                                    className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer"
-                                  >
-                                    <CreditCard size={14} /> Membership
-                                  </button>
-                                ) : null}
-                                {trainer.status !== "pending" ? (
+                                <button
+                                  onClick={() => openMembershipModal(trainer.id)}
+                                  className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer"
+                                >
+                                  <CreditCard size={14} /> Membership
+                                </button>
+                                {trainer.status !== "pending" && trainer.status !== "blocked" ? (
                                   <button
                                     onClick={() =>
                                       openUpdateFingerprintsModal(trainer.id)
@@ -1445,7 +1446,7 @@ export default function Trainers() {
                   <button
                     key={i}
                     onClick={() => setPage(i + 1)}
-                    className={`px-2 py-1 text-sm rounded-md ${page === i + 1 ? "bg-gray-900 text-white" : "bg-white border"}`}
+                    className={`cursor-pointer px-2 py-1 text-sm rounded-md ${page === i + 1 ? "bg-gray-900 text-white" : "bg-white border"}`}
                   >
                     {i + 1}
                   </button>
@@ -2034,7 +2035,7 @@ export default function Trainers() {
                             Connect the fingerprint reader and capture the
                             biometric data before submission.
                           </p>
-                          <button className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-gray-800">
+                          <button className="mt-5 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-gray-800">
                             <Fingerprint size={16} />
                             Start Fingerprint Scan
                           </button>
