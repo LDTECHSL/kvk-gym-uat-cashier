@@ -15,6 +15,7 @@ const getToken = () => {
 export const getMembershipPlans = async () => {
   try {
     const response = await axios.get(`${MEMBERSHIP_PLANS_API_URL}`, {
+        params: { activeOnly: true },
         headers: {
             Authorization: `Bearer ${getToken()}`,
         },

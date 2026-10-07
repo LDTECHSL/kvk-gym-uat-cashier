@@ -415,7 +415,7 @@ export default function Trainers() {
         [];
 
       const mappedPlans: MembershipPlan[] = Array.isArray(plans)
-        ? plans.map((plan: any) => ({
+        ? plans.filter((plan: any) => Number(plan.isActive) === 1 && String(plan.title).trim().toLowerCase() !== "day pass").map((plan: any) => ({
           id: String(plan.id),
           title: String(plan.title ?? "Unnamed Plan"),
           price: Number(plan.price ?? 0),
